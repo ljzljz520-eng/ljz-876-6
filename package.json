@@ -1,0 +1,16 @@
+{
+  "name": "kidcode-quest",
+  "version": "1.0.0",
+  "private": true,
+  "description": "少儿编程闯关题库：拖拽积木、循环、条件、小项目挑战；家长看进度、老师布置关卡并查看卡住的概念",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix client",
+    "dev": "concurrently -n server,client -c green,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "build": "npm run build --prefix client",
+    "start": "NODE_ENV=production node server/src/index.js",
+    "seed": "node server/src/seed.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
