@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ level.title }}{% endblock %}
+{% block content %}
+<section class="play-header">
+  <a class="back-link" href="{{ url_for('child.home') }}">← 返回地图</a>
+  <div>
+    <h1>{{ level.title }}</h1>
+    <p>{{ level.story }}</p>
+    {% if assignment %}
+      <div class="assignment-banner">📌 {{ assignment.class_name }} 的作业{% if assignment.due_date %} · 建议 {{ assignment.due_date }} 前完成{% endif %}</div>
+    {% endif %}
+  </div>
+  <div class="best-card">
+    <small>最佳成绩</small>
+    <strong>{{ previous_best | stars }}</strong>
+  </div>
+</section>
+
+<section class="play-layout" data-level="{{ level_json }}" data-level-id="{{ level.id }}">
+  <aside class="palette panel">
+    <h2>积木箱</h2>
+    <p class="muted">拖动积木到程序区，嵌套积木可以直接拖到卡槽里。</p>
+    <div id="palette" class="blocks"></div>
+    <h2>关卡目标</h2>
+    <ul class="goal-list">
+      <li>让机器人到达蓝色能量站</li>
+      {% if level.world.stars %}<li>收集地图上的全部能量星</li>{% endif %}
+      <li>步数 ≤ {{ level.par_steps }}、积木 ≤ {{ level.target_blocks }} 可冲三星</li>
+    </ul>
+  </aside>
+
+  <section class="workspace panel">
+    <div class="workspace-toolbar">
+      <h2>我的程序</h2>
+      <div><span id="block-count">0</span>/{{ level.max_blocks }} 块</div>
+    </div>
+    <div id="program" class="program-slot" data-zone="program"></div>
+    <div class="run-bar">
+      <button id="run-btn" class="btn primary large">▶ 运行程序</button>
+      <button id="reset-btn" class="btn">清空</button>
+      <span id="variant-label" class="variant-pill"></span>
+    </div>
+    <div id="feedback" class="feedback" aria-live="polite"></div>
+  </section>
+
+  <aside class="map-panel panel">
+    <h2>机器人地图</h2>
+    <div id="grid" class="grid"></div>
+    <div id="run-stats" class="run-stats muted">准备运行</div>
+    <details class="hints" open>
+      <summary>需要提示？</summary>
+      <ol>{% for hint in level.hints %}<li>{{ hint }}</li>{% endfor %}</ol>
+    </details>
+  </aside>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/play.js') }}"></script>
+{% endblock %}

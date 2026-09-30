@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}孩子首页{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <h1>我的编程地图</h1>
+    <p>已获得 <strong class="star-text">{{ total_stars }}</strong> 颗星。按顺序闯关，也可以先完成老师布置的关卡。</p>
+  </div>
+  <div class="family-code-card">
+    <span>家庭连接码</span>
+    <strong>{{ g.user.family_code }}</strong>
+    <small>交给家长，用于查看进度</small>
+  </div>
+</section>
+
+{% if assignments %}
+<section class="panel">
+  <h2>📌 老师布置的挑战</h2>
+  <div class="assignment-list">
+    {% for a in assignments %}
+      <a class="assignment-card {{ 'done' if a.done }}" href="{{ url_for('child.play', level_id=a.level_id) }}">
+        <span class="class-pill">{{ a.class_name }}</span>
+        <strong>{{ a.title }}</strong>
+        {% if a.due_date %}<small>建议完成：{{ a.due_date }}</small>{% endif %}
+        <em>{{ '已完成' if a.done else '去挑战' }}</em>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="panel">
+  <h2>加入班级</h2>
+  <form method="post" action="{{ url_for('child.join_class') }}" class="inline-form">
+    <input name="join_code" placeholder="输入老师给的 6 位班级码" required>
+    <button class="btn primary">加入</button>
+  </form>
+  {% if classes %}
+    <div class="chips">
+      {% for c in classes %}<span class="chip">{{ c.name }} · {{ c.join_code }}</span>{% endfor %}
+    </div>
+  {% endif %}
+</section>
+
+<section class="level-map">
+  {% for level in levels %}
+    {% set p = progress.get(level.id) %}
+    {% set is_locked = level.id != 1 and level.id not in assigned and not progress.get(level.id - 1, {}).get('successes') %}
+    <article class="level-card {{ 'locked' if is_locked }} {{ 'project' if level.project }}">
+      <div class="level-number">{{ level.id }}</div>
+      <h3>{{ level.title }}</h3>
+      <p>{{ level.summary }}</p>
+      <span class="concept-pill">{{ level.concept_label }}</span>
+      <div class="stars">{{ (p.best_stars if p else 0) | stars }}</div>
+      {% if is_locked %}
+        <button class="btn" disabled>🔒 完成上一关解锁</button>
+      {% else %}
+        <a class="btn primary" href="{{ url_for('child.play', level_id=level.id) }}">
+          {{ '继续挑战' if p else '开始挑战' }}
+        </a>
+      {% endif %}
+    </article>
+  {% endfor %}
+</section>
+{% endblock %}

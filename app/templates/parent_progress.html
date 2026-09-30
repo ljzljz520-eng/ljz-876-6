@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ child.name }} 的学习进度{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <a class="back-link" href="{{ url_for('parent.home') }}">← 返回家庭首页</a>
+    <h1>{{ child.name }} 的学习进度</h1>
+    <p>已完成 {{ completed }}/{{ total_levels }} 关，累计 {{ total_stars }}/{{ max_stars }} 颗星。</p>
+  </div>
+  <div class="privacy-note">🔒 家长端不显示标准答案、积木程序或失败答案，仅显示学习进度。</div>
+</section>
+
+<section class="stat-grid">
+  <div class="stat"><span>完成关卡</span><strong>{{ completed }}/{{ total_levels }}</strong></div>
+  <div class="stat"><span>累计星星</span><strong>{{ total_stars }}/{{ max_stars }}</strong></div>
+  <div class="stat"><span>作业状态</span><strong>{{ assignments | selectattr('done') | list | length }}/{{ assignments | length }}</strong></div>
+</section>
+
+<section class="panel">
+  <h2>概念掌握概览</h2>
+  <div class="concept-bars">
+    {% for c in concepts %}
+      <div class="concept-row">
+        <span>{{ c.label }}</span>
+        <div class="bar"><i style="width: {{ c.percent }}%"></i></div>
+        <em>{{ c.earned }}/{{ c.possible }} 星</em>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel">
+  <h2>作业完成情况</h2>
+  {% if assignments %}
+    <table class="table">
+      <thead><tr><th>作业</th><th>班级</th><th>建议日期</th><th>状态</th></tr></thead>
+      <tbody>
+        {% for a in assignments %}
+          <tr><td>{{ a.title }}</td><td>{{ a.class_name }}</td><td>{{ a.due_date or '—' }}</td>
+            <td><span class="status {{ 'ok' if a.done else 'pending' }}">{{ '已完成' if a.done else '进行中' }}</span></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}<p class="empty">孩子还没有加入班级或收到作业。</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>关卡进度</h2>
+  <table class="table">
+    <thead><tr><th>关卡</th><th>概念</th><th>星级</th><th>练习次数</th><th>最近练习</th><th>状态</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+        <tr>
+          <td>{{ item.level.title }}</td>
+          <td>{{ item.level.concept_label }}</td>
+          <td class="star-text">{{ item.best_stars | stars }}</td>
+          <td>{{ item.attempts }}</td>
+          <td>{{ item.last_played_at or '—' }}</td>
+          <td><span class="status {{ 'ok' if item.status == 'completed' else ('pending' if item.status == 'started' else 'muted') }}">
+            {{ {'completed': '已完成', 'started': '练习中', 'not_started': '未开始'}[item.status] }}
+          </span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

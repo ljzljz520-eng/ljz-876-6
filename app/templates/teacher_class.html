@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ classroom.name }}{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <a class="back-link" href="{{ url_for('teacher.home') }}">← 返回班级列表</a>
+    <h1>{{ classroom.name }}</h1>
+    <p>把班级码发给学生：<strong class="code">{{ classroom.join_code }}</strong></p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>布置关卡</h2>
+  <form method="post" action="{{ url_for('teacher.create_assignment', class_id=classroom.id) }}" class="assignment-form">
+    <select name="level_id" required>
+      {% for level in levels %}<option value="{{ level.id }}">{{ level.title }} · {{ level.concept_label }}</option>{% endfor %}
+    </select>
+    <input name="title" placeholder="作业名称（可选）">
+    <input type="date" name="due_date">
+    <input name="note" placeholder="给学生的提醒（可选）">
+    <button class="btn primary">布置</button>
+  </form>
+</section>
+
+<section class="panel">
+  <h2>班级概念热力图</h2>
+  {% if concept_summary %}
+    <div class="concept-grid">
+      {% for c in concept_summary %}
+        <article class="concept-trouble {{ 'hot' if c.stuck_count or c.failure_rate >= 50 }}">
+          <h3>{{ c.label }}</h3>
+          <p>失败率 <strong>{{ c.failure_rate }}%</strong> · {{ c.failures }}/{{ c.attempts }} 次尝试未通过</p>
+          {% if c.stuck_names %}
+            <p>需要关注：{{ c.stuck_names | join('、') }}</p>
+          {% else %}<p class="muted">暂无连续卡住的学生</p>{% endif %}
+          <small>教学建议：{{ c.tip }}</small>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}<p class="empty">学生开始尝试后，这里会自动汇总循环、条件等概念卡点。</p>{% endif %}
+</section>
+
+<div class="two-col">
+  <section class="panel">
+    <h2>已布置作业</h2>
+    {% if assignments %}
+      <div class="assignment-list">
+        {% for a in assignments %}
+          <a class="assignment-card" href="{{ url_for('teacher.assignment_detail', assignment_id=a.id) }}">
+            <strong>{{ a.title }}</strong>
+            <small>{{ a.completed_count }}/{{ a.roster_count }} 人完成</small>
+            <em>查看卡点 →</em>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}<p class="empty">还没有布置作业。</p>{% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>学生名单（{{ students | length }}）</h2>
+    {% if students %}
+      <div class="chips">{% for s in students %}<span class="chip">{{ s.name }}</span>{% endfor %}</div>
+    {% else %}<p class="empty">等待学生输入班级码加入。</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

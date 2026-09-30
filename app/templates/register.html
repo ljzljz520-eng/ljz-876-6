@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}注册 - 星光编程闯关{% endblock %}
+{% block content %}
+<div class="auth-card">
+  <h1>创建账号</h1>
+  <form method="post" class="form">
+    <label>我是
+      <select name="role">
+        <option value="child" {{ 'selected' if role == 'child' }}>孩子 / 学生</option>
+        <option value="parent" {{ 'selected' if role == 'parent' }}>家长</option>
+        <option value="teacher" {{ 'selected' if role == 'teacher' }}>老师</option>
+      </select>
+    </label>
+    <label>昵称<input name="name" required maxlength="30" placeholder="例如：小星"></label>
+    <label>账号<input name="username" required minlength="3" placeholder="字母、数字或下划线"></label>
+    <label>密码<input type="password" name="password" required minlength="6" placeholder="至少 6 位"></label>
+    <label id="grade-label">年级（可选）<input name="grade" placeholder="例如：三年级"></label>
+    <button class="btn primary">创建账号并进入</button>
+  </form>
+  <p class="alt">已有账号？<a href="{{ url_for('auth.login') }}">直接登录</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}老师首页{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <h1>我的班级</h1>
+    <p>创建班级、布置关卡，并依据学生的重复失败识别需要讲解的概念。</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>创建班级</h2>
+  <form method="post" action="{{ url_for('teacher.create_class') }}" class="inline-form">
+    <input name="name" placeholder="班级名称，例如：周三编程启蒙 A 班" required>
+    <button class="btn primary">生成班级码</button>
+  </form>
+</section>
+
+<section class="class-grid">
+  {% for c in classes %}
+    <a class="panel class-card" href="{{ url_for('teacher.class_detail', class_id=c.id) }}">
+      <h2>{{ c.name }}</h2>
+      <p>{{ c.student_count }} 名学生</p>
+      <span class="join-code">班级码：{{ c.join_code }}</span>
+    </a>
+  {% else %}
+    <div class="empty">先创建一个班级，学生用班级码加入后即可布置关卡。</div>
+  {% endfor %}
+</section>
+{% endblock %}

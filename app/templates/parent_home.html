@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}家长首页{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <h1>家庭学习进度</h1>
+    <p>这里只展示孩子的进度、星级、练习次数和作业状态，不展示标准答案或孩子提交的程序。</p>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>连接孩子账号</h2>
+  <p class="muted">请孩子登录后，在其首页复制“家庭连接码”。</p>
+  <form method="post" action="{{ url_for('parent.link_child') }}" class="inline-form">
+    <input name="family_code" placeholder="输入 F 开头的家庭连接码" required>
+    <button class="btn primary">连接</button>
+  </form>
+</section>
+
+<section class="child-card-grid">
+  {% for card in children %}
+    <a class="panel child-card" href="{{ url_for('parent.progress', child_id=card.child.id) }}">
+      <h2>{{ card.child.name }}</h2>
+      <p>已完成 {{ card.summary.completed or 0 }} 关</p>
+      <p class="star-text big">{{ card.summary.stars or 0 }} ★</p>
+      <small>累计尝试 {{ card.summary.attempts or 0 }} 次 · 最近 {{ card.summary.last_active or '尚未练习' }}</small>
+    </a>
+  {% else %}
+    <div class="empty">还没有连接孩子。连接后即可看到学习进度。</div>
+  {% endfor %}
+</section>
+{% endblock %}

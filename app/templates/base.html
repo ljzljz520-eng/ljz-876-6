@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}星光编程闯关{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('auth.index') }}">
+      <span class="brand-logo">🤖</span><span>星光编程闯关</span>
+    </a>
+    <nav class="nav">
+      {% if g.user %}
+        <span class="hello">你好，{{ g.user.name }}</span>
+        <a href="{{ url_for(g.user['role'] ~ '.home') }}">我的首页</a>
+        <form method="post" action="{{ url_for('auth.logout') }}"><button class="link-btn">退出</button></form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">登录</a>
+        <a class="nav-cta" href="{{ url_for('auth.register') }}">免费加入</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <section class="messages" aria-live="polite">
+          {% for category, message in messages %}
+            <div class="message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">让孩子在安全的反馈中练习顺序、循环、条件判断与小项目创作。</footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

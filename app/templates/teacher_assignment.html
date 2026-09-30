@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}作业详情 - {{ assignment.title }}{% endblock %}
+{% block content %}
+<section class="dashboard-head">
+  <div>
+    <a class="back-link" href="{{ url_for('teacher.class_detail', class_id=assignment.class_id) }}">← 返回班级</a>
+    <h1>{{ assignment.title }}</h1>
+    <p>{{ assignment.class_name }} · 核心概念：<strong>{{ concept_label }}</strong></p>
+    {% if assignment.note %}<p>提醒：{{ assignment.note }}</p>{% endif %}
+  </div>
+</section>
+
+<section class="panel teacher-insight">
+  <h2>哪里卡住了？</h2>
+  <p>系统只汇总尝试结果，不向家长公开标准程序；老师可看到需要干预的学生和错误类型。</p>
+  {% if blocked_students %}
+    <div class="alert">连续多次未通关：{{ blocked_students | map(attribute='student.name') | join('、') }}</div>
+  {% endif %}
+  {% if category_stats %}
+    <div class="trouble-list">
+      {% for cat in category_stats %}
+        <div class="trouble-item">
+          <strong>{{ cat.label }}</strong><span>{{ cat.count }} 次</span>
+          {% if cat.tip %}<small>{{ cat.tip }}</small>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}<p class="empty">暂未记录失败尝试。</p>{% endif %}
+</section>
+
+<section class="panel">
+  <h2>本概念建议讲解</h2>
+  <p>{{ level.teacher_tip }}</p>
+</section>
+
+<section class="panel">
+  <h2>学生完成情况</h2>
+  <table class="table">
+    <thead><tr><th>学生</th><th>尝试</th><th>最佳星级</th><th>最近结果</th><th>建议</th></tr></thead>
+    <tbody>
+      {% for row in students %}
+        <tr class="{{ 'stuck-row' if row.stuck }}">
+          <td>{{ row.student.name }}</td>
+          <td>{{ row.attempts }}</td>
+          <td class="star-text">{% if row.best %}{{ row.best.stars | stars }}{% else %}—{% endif %}</td>
+          <td>
+            {% if not row.latest %}未开始
+            {% elif row.latest.success %}通过 · {{ row.latest.stars }} 星
+            {% else %}需要帮助{% endif %}
+          </td>
+          <td>{% if row.stuck %}<span class="status pending">建议一对一引导</span>
+            {% elif row.best and row.best.stars == 3 %}<span class="status ok">可邀请分享</span>
+            {% else %}<span class="muted">继续观察</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
